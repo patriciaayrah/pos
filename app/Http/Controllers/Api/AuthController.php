@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -15,25 +16,45 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $request->validate([
+
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8',
+        ], [
+            'name.required' => 'Name is required.',
+            'name.max' => 'Name should not exceed 255 characters.',
+            'email.required' => 'Email is required.',
+            'email.email' => 'Email must be a valid email address.',
+            'email.unique' => 'Email address already exists.',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 8 characters long.',
         ]);
 
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        // Check if validation failed
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
 
-        $token = $user->createToken('api-token')->plainTextToken;
+        // Continue if validation passes
+        $validatedData = $validator->validated();
+
+        $user = \App\Models\User::create([
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => bcrypt($validatedData['password']),
+        ]);
 
         return response()->json([
+            'status' => true,
             'message' => 'User registered successfully.',
-            'user'    => $user,
-            'token'   => $token,
-        ], 201);
+            'data' => $user
+        ]);
+
     }
 
     /**
@@ -71,7 +92,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-
+        return "testing";
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
