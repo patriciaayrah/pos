@@ -25,7 +25,7 @@ class RolesController extends Controller
      */
     public function store(Request $request){
 
-        return $role = Role::create(['name' => $request->name]);
+        return $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
 
         return response()->json($role, 201);
         
