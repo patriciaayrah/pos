@@ -70,9 +70,10 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Invalid credentials.'],
-            ]);
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid email or password.',
+            ], 401); // 401 = Unauthorized
         }
 
         // Delete old tokens (optional)
@@ -92,7 +93,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        return "testing";
+
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
