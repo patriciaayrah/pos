@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Traits\HasRoles;
+
+
 
 class Usercontroller extends Controller
 {
@@ -15,7 +19,13 @@ class Usercontroller extends Controller
      */
     public function index()
     {
-        return response()->json(User::all(), 200);
+        
+        $user = request()->user();
+
+        if($user->hasRole('admin')){
+            return response()->json(User::all(), 200);
+        }
+        
     }
 
     /**
@@ -24,6 +34,7 @@ class Usercontroller extends Controller
      */
     public function store(Request $request)
     {
+        
         $validated = $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users',
