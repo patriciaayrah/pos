@@ -25,9 +25,16 @@ class RolesController extends Controller
      */
     public function store(Request $request){
 
-        return $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
+        $permissions = $request->permission;
 
-        return response()->json($role, 201);
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'api']);
+        }
+
+        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
+        $adminRole->givePermissionTo($permissions);
+
+        return response()->json($adminRole, 201);
         
     }
 }

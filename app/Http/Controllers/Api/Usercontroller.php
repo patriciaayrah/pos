@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Traits\HasRoles;
+
+
 
 class Usercontroller extends Controller
 {
@@ -13,9 +17,26 @@ class Usercontroller extends Controller
      * Display a listing of the resource.
      * List all users
      */
+    
     public function index()
     {
+        $check = $this->permission(['admin', 'owner']);
+        if($check !== true) { return $check; }
+        
         return response()->json(User::all(), 200);
+        
+    }
+
+    public function permission(array|string $roles){
+        
+        $user = request()->user();
+
+        if (! $user || ! $user->hasRole($roles)) {
+            return response()->json(['message' => 'Unauthorized access'], 403);
+        }
+
+        return true; // returns true if allowed
+
     }
 
     /**
@@ -24,6 +45,9 @@ class Usercontroller extends Controller
      */
     public function store(Request $request)
     {
+        $check = $this->permission(['admin', 'owner']);
+        if($check !== true) { return $check; }
+        
         $validated = $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users',
@@ -45,10 +69,13 @@ class Usercontroller extends Controller
      */
     public function show($id)
     {
+        $check = $this->permission(['admin', 'owner']);
+        if($check !== true) { return $check; }
+
         $user = User::find($id);
-        return $user
-            ? response()->json($user, 200)
-            : response()->json(['message' => 'User not found'], 404);
+            return $user
+                ? response()->json($user, 200)
+                : response()->json(['message' => 'User not found'], 404);
     }
 
     /**
@@ -57,10 +84,14 @@ class Usercontroller extends Controller
      */
     public function update(Request $request, $id)
     {
+         $check = $this->permission(['admin', 'owner']);
+        if($check !== true) { return $check; }
+
         $user = User::find($id);
         if(!$user) return response()->json(['message' => 'User not found'], 404);
 
         $user->update($request->only(['name', 'email']));
+        $user->assignRole($request->role);
         return response()->json($user, 200);
     }
 
@@ -70,10 +101,13 @@ class Usercontroller extends Controller
      */
     public function destroy($id)
     {
+        $check = $this->permission(['admin', 'owner']);
+        if($check !== true) { return $check; }
+
         $user = User::find($id);
         if(!$user) return response()->json(['message' => 'User not found'], 400);
 
         $user->delete();
-        return response()->json(['message', 'User deleted'], 200);
+        return response()->json(['message' => 'User deleted'], 200);
     }
 }
