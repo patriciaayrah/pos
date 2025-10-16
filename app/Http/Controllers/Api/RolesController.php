@@ -28,10 +28,10 @@ class RolesController extends Controller
         $permissions = $request->permission;
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'api']);
         }
 
-        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
         $adminRole->givePermissionTo($permissions);
 
         return response()->json($adminRole, 201);
