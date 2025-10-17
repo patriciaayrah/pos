@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\InventoryItemController;
 use App\Http\Controllers\Api\InventoryStockController;
 use App\Http\Controllers\Api\ProductCategoryController;
+use App\Http\Controllers\Api\ProductSubCategoryController;
 use Spatie\Permission\Models\Role;
 
 
@@ -27,5 +28,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //PRODUCT MODULE
     Route::middleware('role:admin|owner|superadmin')->apiResource('product-categories', ProductCategoryController::class);
+    Route::middleware('role:admin|owner|superadmin')->apiResource('product-sub-categories', ProductSubCategoryController::class);
 
 });
