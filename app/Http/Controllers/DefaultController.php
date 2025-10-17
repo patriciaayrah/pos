@@ -20,7 +20,7 @@ class Usercontroller extends Controller
     
     public function index()
     {
-        $check = $this->permission(['admin', 'owner']);
+        $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
         
         return response()->json(User::all(), 200);
@@ -45,7 +45,7 @@ class Usercontroller extends Controller
      */
     public function store(Request $request)
     {
-        $check = $this->permission(['admin', 'owner']);
+        $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
         
         $validated = $request->validate([
@@ -69,7 +69,7 @@ class Usercontroller extends Controller
      */
     public function show($id)
     {
-        $check = $this->permission(['admin', 'owner']);
+        $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
 
         $user = User::find($id);
@@ -100,7 +100,7 @@ class Usercontroller extends Controller
      */
     public function destroy($id)
     {
-        $check = $this->permission(['admin', 'owner']);
+        $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
 
         $user = User::find($id);
