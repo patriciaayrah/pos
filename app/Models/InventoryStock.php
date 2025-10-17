@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class InventoryItem extends Model
+class InventoryStock extends Model
 {
-    
-    use HasFactory, Notifiable, HasApiTokens, HasRoles;
+      use HasFactory, Notifiable, HasApiTokens, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -19,9 +19,10 @@ class InventoryItem extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'weight',
-        'unit',
+        'item_id',
+        'price',
+        'quantity',
+        'purchased_date',
+        'expiration_date'
     ];
-
 }
