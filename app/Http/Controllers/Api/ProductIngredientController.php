@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Product;
+use App\Models\ProductIngredient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-class ProductController extends Controller
+class ProductIngredientController extends Controller
 {
+
     public function permission(array|string $roles){
         
         $user = request()->user();
@@ -32,13 +33,13 @@ class ProductController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
         
-        return response()->json(Product::all(), 200);
+        return response()->json(ProductIngredient::all(), 200);
         
     }
 
     /**
      * Store a newly created resource in storage.
-     * Create a new product
+     * Create a new ingredient
      */
     public function store(Request $request)
     {
@@ -46,65 +47,64 @@ class ProductController extends Controller
         if($check !== true) { return $check; }
         
         $validated = $request->validate([
-            'name' => 'required',
-            'category_id' => 'required',
-            'price' => 'required',
+            'product_id' => 'required',
+            'item_id' => 'required',
+            'qty_used' => 'required',
         ]);
 
-        $product = Product::create([
-            'name' => $validated['name'],
-            'category_id' => $validated['category_id'],
-            'sub_category_id' => $request->sub_category_id,
-            'price' => $request->price,
+        $productIngredient = ProductIngredient::create([
+            'product_id' => $validated['product_id'],
+            'item_id' => $validated['item_id'],
+            'qty_used' => $validated['qty_used']
         ]);
 
-        return response()->json($product, 201);
+        return response()->json($productIngredient, 201);
     }
 
     /**
      * Display the specified resource.
-     * Show single product
+     * Show single product ingredient
      */
     public function show($id)
     {
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
 
-        $product = Product::find($id);
-            return $product
-                ? response()->json($product, 200)
-                : response()->json(['message' => 'Product not found'], 404);
+        $productIngredient = ProductIngredient::find($id);
+            return $productIngredient
+                ? response()->json($productIngredient, 200)
+                : response()->json(['message' => 'product ingredient not found'], 404);
     }
 
     /**
      * Update the specified resource in storage.
-     * Update specific user
+     * Update specific ingredient
      */
     public function update(Request $request, $id)
     {
          $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
 
-        $product = Product::find($id);
-        if(!$product) return response()->json(['message' => 'product not found'], 404);
+        $productIngredient = ProductIngredient::find($id);
+        if(!$productIngredient) return response()->json(['message' => 'product ingredient not found'], 404);
 
-        $product->update($request->only(['name', 'category_id', 'sub_category_id', 'price']));
-        return response()->json($product, 200);
+        $productIngredient->update($request->only(['product_id', 'item_id', 'qty_used']));
+        return response()->json($productIngredient, 200);
     }
 
     /**
      * Remove the specified resource from storage.
-     * Delete specific product
+     * Delete specific ingredient
      */
     public function destroy($id)
     {
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
 
-        $product = Product::find($id);
-        if(!$product) return response()->json(['message' => 'product not found'], 400);
+        $productIngredient = ProductIngredient::find($id);
+        if(!$productIngredient) return response()->json(['message' => 'product ingredient not found'], 400);
 
-        $product->delete();
-        return response()->json(['message' => 'product deleted'], 200);
+        $productIngredient->delete();
+        return response()->json(['message' => 'product ingredient deleted'], 200);
     }
 }
