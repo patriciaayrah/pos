@@ -24,4 +24,14 @@ class InventoryItem extends Model
         'unit',
     ];
 
+    // Reverse relation
+    public function inventoryStock()
+    {
+        return $this->hasMany(InventoryStock::class, 'item_id');
+    }
+
+    public function productIngredient()
+    {
+        return $this->hasMany(ProductIngredient::class, 'item_id');
+    }
 }

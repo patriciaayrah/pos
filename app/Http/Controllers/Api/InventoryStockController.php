@@ -33,7 +33,9 @@ class InventoryStockController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
         
-        return response()->json(InventoryStock::all(), 200);
+        $inventoryStock = InventoryStock::with('inventoryItem')->get();
+
+        return response()->json($inventoryStock, 200);
         
     }
 
@@ -74,7 +76,7 @@ class InventoryStockController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
 
-        $stock = InventoryStock::find($id);
+        $stock = InventoryStock::with('inventoryItem')->find($id);
             return $stock
                 ? response()->json($stock, 200)
                 : response()->json(['message' => 'stock not found'], 404);

@@ -32,7 +32,8 @@ class ProductController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
         
-        return response()->json(Product::all(), 200);
+        $product = Product::with(['productCategory', 'productSubCategory'])->get();
+        return response()->json($product, 200);
         
     }
 
@@ -69,8 +70,7 @@ class ProductController extends Controller
     {
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
-
-        $product = Product::find($id);
+        $product = Product::with(['productCategory', 'productSubCategory'])->find($id);
             return $product
                 ? response()->json($product, 200)
                 : response()->json(['message' => 'Product not found'], 404);
