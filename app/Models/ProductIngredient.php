@@ -17,4 +17,17 @@ class ProductIngredient extends Model
         'item_id',
         'qty_used',
     ];
+
+    // Define relationship to Category
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    // Define relationship to Category
+    public function inventoryItem()
+    {
+        return $this->belongsTo(InventoryItem::class, 'item_id');
+    }
+
 }

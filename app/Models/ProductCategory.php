@@ -21,5 +21,17 @@ class ProductCategory extends Model
         'name',
     ];
 
+     // Reverse relation
+    public function productSubCategory()
+    {
+        return $this->hasMany(ProductSubCategory::class, 'category_id');
+    }
+
+      // Reverse relation
+    public function product()
+    {
+        return $this->hasMany(Product::class, 'category_id');
+    }
+
 
 }

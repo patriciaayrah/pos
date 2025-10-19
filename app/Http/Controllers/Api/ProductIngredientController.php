@@ -33,7 +33,8 @@ class ProductIngredientController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
         
-        return response()->json(ProductIngredient::all(), 200);
+        $productIngredient = ProductIngredient::with(['product', 'inventoryItem'])->get();
+        return response()->json($productIngredient, 200);
         
     }
 
@@ -47,18 +48,15 @@ class ProductIngredientController extends Controller
         if($check !== true) { return $check; }
         
         $validated = $request->validate([
-            'product_id' => 'required',
-            'item_id' => 'required',
-            'qty_used' => 'required',
+            'ingredients' => 'required|array',
+            'ingredients.*.product_id' => 'required',
+            'ingredients.*.item_id' => 'required',
+            'ingredients.*.qty_used' => 'required',
         ]);
 
-        $productIngredient = ProductIngredient::create([
-            'product_id' => $validated['product_id'],
-            'item_id' => $validated['item_id'],
-            'qty_used' => $validated['qty_used']
-        ]);
+        $productIngredient = ProductIngredient::insert($validated['ingredients']);
 
-        return response()->json($productIngredient, 201);
+        return response()->json(['message' => 'Products added successfully!'], 201);
     }
 
     /**
@@ -70,7 +68,7 @@ class ProductIngredientController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
 
-        $productIngredient = ProductIngredient::find($id);
+        $productIngredient = ProductIngredient::with(['product', 'inventoryItem'])->find($id);
             return $productIngredient
                 ? response()->json($productIngredient, 200)
                 : response()->json(['message' => 'product ingredient not found'], 404);

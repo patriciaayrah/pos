@@ -23,4 +23,15 @@ class ProductSubCategory extends Model
         'name',
     ];
 
+    // Define relationship to Category
+    public function productCategory()
+    {
+        return $this->belongsTo(ProductCategory::class, 'category_id');
+    }
+
+      // Reverse relation
+    public function product()
+    {
+        return $this->hasMany(Product::class, 'sub_category_id');
+    }
 }
