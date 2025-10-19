@@ -22,6 +22,11 @@ class InventoryItem extends Model
         'name',
         'weight',
         'unit',
+        'brand',
+        'current_price',
+        'supplier',
+        'address',
+        'contact_number'
     ];
 
     // Reverse relation
