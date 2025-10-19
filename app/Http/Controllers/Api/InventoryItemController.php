@@ -50,13 +50,16 @@ class InventoryItemController extends Controller
             'name' => 'required|unique:inventory_items',
             'weight' => 'required',
             'unit' => 'required|min:2',
+            'brand' => 'required',
+            'supplier' => 'required',
         ]);
 
-        $item = InventoryItem::create([
-            'name' => $validated['name'],
-            'weight' => $validated['weight'],
-            'unit' => $validated['unit']
+        $validated = array_merge($validated, [
+            'address' => $request->address,
+            'contact_number' => $request->contact_number
         ]);
+
+        $item = InventoryItem::create($validated);
 
         return response()->json($item, 201);
     }
@@ -89,7 +92,7 @@ class InventoryItemController extends Controller
         $item = InventoryItem::find($id);
         if(!$item) return response()->json(['message' => 'item not found'], 404);
 
-        $item->update($request->only(['name', 'weight', 'unit']));
+        $item->update($request->only(['name', 'weight', 'unit', 'brand', 'supplier', 'address', 'contact_number']));
         return response()->json($item, 200);
     }
 
