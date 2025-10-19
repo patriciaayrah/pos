@@ -25,4 +25,10 @@ class InventoryStock extends Model
         'purchased_date',
         'expiration_date'
     ];
+
+    // Define relationship to Category
+    public function inventoryItem()
+    {
+        return $this->belongsTo(InventoryItem::class, 'item_id');
+    }
 }

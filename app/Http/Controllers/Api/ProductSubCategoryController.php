@@ -27,7 +27,8 @@ class ProductSubCategoryController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
         
-        return response()->json(ProductSubCategory::all(), 200);
+        $subCategory = ProductSubCategory::with('productCategory')->get();
+        return response()->json($subCategory, 200);
         
     }
 
@@ -62,7 +63,7 @@ class ProductSubCategoryController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
 
-        $subCategory = ProductSubCategory::find($id);
+        $subCategory = ProductSubCategory::with('productCategory')->find($id);
             return $subCategory
                 ? response()->json($subCategory, 200)
                 : response()->json(['message' => 'sub-category not found'], 404);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\InventoryItem;
 use App\Models\User;
 use App\Models\InventoryStock;
 use Illuminate\Http\Request;
@@ -33,7 +34,9 @@ class InventoryStockController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
         
-        return response()->json(InventoryStock::all(), 200);
+        $inventoryStock = InventoryStock::with('inventoryItem')->get();
+
+        return response()->json($inventoryStock, 200);
         
     }
 
@@ -62,6 +65,9 @@ class InventoryStockController extends Controller
             'expiration_date' => $validated['expiration_date'],
         ]);
 
+        $inventoryItem = InventoryItem::find($request->item_id);
+        $inventoryItem->update(['current_price' => $request->price]);
+
         return response()->json($stock, 201);
     }
 
@@ -74,7 +80,7 @@ class InventoryStockController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
 
-        $stock = InventoryStock::find($id);
+        $stock = InventoryStock::with('inventoryItem')->find($id);
             return $stock
                 ? response()->json($stock, 200)
                 : response()->json(['message' => 'stock not found'], 404);
@@ -93,6 +99,9 @@ class InventoryStockController extends Controller
         if(!$stock) return response()->json(['message' => 'stock not found'], 404);
 
         $stock->update($request->only(['item_id', 'price', 'quantity', 'purchased_date', 'expiration_date']));
+        
+        $inventoryItem = InventoryItem::find($request->item_id);
+        $inventoryItem->update(['current_price' => $request->price]);
         return response()->json($stock, 200);
     }
 
