@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Sale;
+use App\Models\SaleItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -67,8 +68,29 @@ class SaleController extends Controller
 
         $sale = Sale::create($validated);
 
+        $itemValidated = $request->validate([
+            'items.*.product_id' => 'required',
+            'items.*.product_name' => 'required',
+            'items.*.unit_price' => 'required',
+            'items.*.quantity' => 'required',
+            'items.*.total_price' => 'required',
+            'items.*.discount' => 'nullable|numeric'
+        ]);
 
-        return response()->json($sale, 201);
+        // Loop through each validated item and add sale_id
+        $saleItem = array_map(function ($item) use ($sale) {
+            return array_merge($item, ['sale_id' => $sale->id]);
+        }, $itemValidated['items']);
+
+        $saleItem = SaleItem::insert($saleItem);
+
+            return response()->json([
+                'message' => 'Sale created successfully',
+                'sale' => [
+                    'sale' => $sale,
+                    'item' => $saleItem,
+                ]
+                ], 201);
     }
 
     /**
