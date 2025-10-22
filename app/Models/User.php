@@ -48,4 +48,10 @@ class User extends Authenticatable
     }
 
     protected $guard_name = 'api';
+
+     // Define relationship to Category
+    public function sale()
+    {
+        return $this->hasMany(Sale::class, 'user_id');
+    }
 }
