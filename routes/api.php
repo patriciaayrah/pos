@@ -34,6 +34,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware('role:admin|owner|superadmin')->apiResource('product-sub-categories', ProductSubCategoryController::class);
     Route::middleware('role:admin|owner|superadmin')->apiResource('products', ProductController::class);
     Route::middleware('role:admin|owner|superadmin')->apiResource('product-ingredients', ProductIngredientController::class);
+
+    //SALE MODULE
     Route::middleware('role:admin|owner|superadmin|cashier')->apiResource('sales', SaleController::class);
 
 });

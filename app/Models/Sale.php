@@ -26,9 +26,15 @@ class Sale extends Model
         'notes',
     ];
 
-    // Define relationship to Category
+    // Define relationship to user
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+     // Define relationship to sale per item
+    public function sale_item()
+    {
+        return $this->hasMany(SaleItem::class, 'sale_id');
     }
 }
