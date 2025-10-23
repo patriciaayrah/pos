@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\EmployeeTimeRecordController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\InventoryItemController;
 use App\Http\Controllers\Api\InventoryStockController;
@@ -37,5 +38,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //SALE MODULE
     Route::middleware('role:admin|owner|superadmin|cashier')->apiResource('sales', SaleController::class);
+   
+    //EMPLOYEE TIME RECORD MODULE
+    Route::middleware('role:admin|owner|superadmin')->apiResource('employee-time-records', EmployeeTimeRecordController::class);
 
 });
