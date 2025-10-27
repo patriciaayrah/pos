@@ -11,6 +11,8 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Auth;
 
+use Carbon\Carbon;
+
 class EmployeeTimeRecordController extends Controller
 {
     
@@ -36,7 +38,9 @@ class EmployeeTimeRecordController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin']);
         if($check !== true) { return $check; }
         
-        return response()->json(EmployeeTimeRecord::all(), 200);
+        $time_record = EmployeeTimeRecord::with(['employee'])->get();
+
+        return response()->json($time_record, 200);
         
     }
 
@@ -49,10 +53,11 @@ class EmployeeTimeRecordController extends Controller
         $check = $this->permission(['admin', 'owner', 'superadmin', 'barista', 'cashier']);
         if($check !== true) { return $check; }
 
+        $remarks = $this->check_remarks($request->record_type);
         $time_record = EmployeeTimeRecord::create([
             'user_id' => Auth::id(),
             'time_in' => now(),
-            'remarks' => "",
+            'remarks' => $remarks,
         ]);
 
         return response()->json($time_record, 201);
@@ -107,6 +112,50 @@ class EmployeeTimeRecordController extends Controller
 
         $user->delete();
         return response()->json(['message' => 'User deleted'], 200);
+    }
+
+    public function check_remarks($data){
+
+        $user = Auth::user();
+        $employee_schedule = $user->employee_schedule;
+        $remarks = "";
+        $timestamp = now(); // current time of login
+
+        if($employee_schedule == "morning"){
+
+            if ($data == "time_in") {
+
+                // Define morning shift start time (10:00 AM today)
+                $morning_shift = Carbon::today()->setTime(10, 0, 0);
+
+                // Add 10-minute grace period
+                $grace_period = $morning_shift->copy()->addMinutes(10);
+
+                // Check if time_in is within or beyond grace period
+                if ($timestamp->lessThanOrEqualTo($grace_period)) {
+                    $remarks = "Not late";
+                } else {
+                    $remarks = "Late";
+                }
+            }else if($data = "time_out"){
+                // Define morning shift start time (10:00 AM today)
+                $morning_shift = Carbon::today()->setTime(10, 0, 0);
+
+                // Add 10-minute grace period
+                $grace_period = $morning_shift->copy()->addMinutes(10);
+
+                // Check if time_in is within or beyond grace period
+                if ($timestamp->lessThanOrEqualTo($grace_period)) {
+                    $remarks = "Not late";
+                } else {
+                    $remarks = "Late";
+                }
+            }
+            
+        }
+
+        return $remarks;
+        
     }
 
 }
