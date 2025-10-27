@@ -52,11 +52,15 @@ class Usercontroller extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
+            'employee_type' => 'required',
+            'employee_schedule' => 'required',
         ]);
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'employee_type' => $validated['employee_type'],
+            'employee_schedule' => $validated['employee_schedule'],
             'password' => Hash::make($validated['password']),
         ]);
 
