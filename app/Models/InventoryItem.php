@@ -24,6 +24,7 @@ class InventoryItem extends Model
         'unit',
         'brand',
         'current_price',
+        'current_stock',
         'supplier',
         'address',
         'contact_number'

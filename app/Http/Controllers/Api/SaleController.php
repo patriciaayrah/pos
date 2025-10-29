@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\InventoryItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -84,13 +86,37 @@ class SaleController extends Controller
 
         $saleItem = SaleItem::insert($saleItem);
 
-            return response()->json([
-                'message' => 'Sale created successfully',
-                'sale' => [
-                    'sale' => $sale,
-                    'item' => $saleItem,
-                ]
-                ], 201);
+        foreach ($itemValidated['items'] as $item) {
+
+            // 3️⃣ Get product + its ingredients
+        $product = Product::with('ingredients.item')->find($item['product_id']);
+
+        // 4️⃣ Loop through each ingredient and deduct inventory stock
+        foreach ($product->ingredients as $ingredient) {
+            $inventoryItem = $ingredient->item;
+
+            // total used = ingredient qty_used * sold quantity
+            $totalUsed = $ingredient->qty_used * $item['quantity'];
+
+            // Prevent negative stock
+            if ($inventoryItem->current_stock < $totalUsed) {
+                throw new \Exception("Not enough stock for {$inventoryItem->name}");
+            }
+
+            // Deduct from inventory
+            $inventoryItem->decrement('current_stock', $totalUsed);
+        }
+
+
+        }
+
+        return response()->json([
+            'message' => 'Sale created successfully',
+            'sale' => [
+                'sale' => $sale,
+                'item' => $saleItem,
+            ]
+            ], 201);
     }
 
     /**
