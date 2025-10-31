@@ -65,8 +65,7 @@ class InventoryStockController extends Controller
             'expiration_date' => $validated['expiration_date'],
         ]);
 
-        $inventoryItem = InventoryItem::find($request->item_id);
-        $inventoryItem->update(['current_price' => $request->price]);
+        $this->update_stock($request->item_id, $request->quantity, $request->price);
 
         return response()->json($stock, 201);
     }
@@ -119,5 +118,18 @@ class InventoryStockController extends Controller
 
         $stock->delete();
         return response()->json(['message' => 'stock deleted'], 200);
+    }
+
+    public function update_stock($id, $quantity, $price){
+        
+        $inventoryItem = InventoryItem::find($id);
+
+        $new_stock = $quantity + $inventoryItem->current_stock;
+        
+        $inventoryItem->update([
+            'current_price' => $price,
+            'current_stock' => $new_stock
+        ]);
+
     }
 }
