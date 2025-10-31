@@ -11,6 +11,8 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+
 
 
 class SaleController extends Controller
@@ -86,29 +88,7 @@ class SaleController extends Controller
 
         $saleItem = SaleItem::insert($saleItem);
 
-        foreach ($itemValidated['items'] as $item) {
-
-            // 3️⃣ Get product + its ingredients
-        $product = Product::with('ingredients.item')->find($item['product_id']);
-
-        // 4️⃣ Loop through each ingredient and deduct inventory stock
-        foreach ($product->ingredients as $ingredient) {
-            $inventoryItem = $ingredient->item;
-
-            // total used = ingredient qty_used * sold quantity
-            $totalUsed = $ingredient->qty_used * $item['quantity'];
-
-            // Prevent negative stock
-            if ($inventoryItem->current_stock < $totalUsed) {
-                throw new \Exception("Not enough stock for {$inventoryItem->name}");
-            }
-
-            // Deduct from inventory
-            $inventoryItem->decrement('current_stock', $totalUsed);
-        }
-
-
-        }
+        $this->update_stock($itemValidated['items']);
 
         return response()->json([
             'message' => 'Sale created successfully',
@@ -148,5 +128,35 @@ class SaleController extends Controller
 
         $sale->update($request->only(['name', 'email']));
         return response()->json($sale, 200);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * Update stock after sale
+     */
+
+    public function update_stock($data){
+
+         foreach ($data as $item) {
+            $product = Product::with('productIngredient')->find($item['product_id']);
+
+            foreach ($product->productIngredient as $ingredient) {
+                $inventoryItem = InventoryItem::find($ingredient->item_id);
+                 $totalUsed = (float) $ingredient->qty_used * (float) $item['quantity'];
+
+                $inventoryItem = InventoryItem::where('id', $ingredient->item_id)->first();
+
+                if (!$inventoryItem) {
+                    continue;
+                }
+                if ($inventoryItem->current_stock < $totalUsed) {
+                    throw new \Exception ("Not enough stock for {$inventoryItem->name}");
+                }
+
+                // Decrement safely
+                $inventoryItem->decrement('current_stock', $totalUsed);
+
+            }
+        }
     }
 }
