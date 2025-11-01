@@ -25,6 +25,7 @@ class InventoryItem extends Model
         'brand',
         'current_price',
         'current_stock',
+        'low_stock',
         'supplier',
         'address',
         'contact_number'
